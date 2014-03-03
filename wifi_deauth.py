@@ -47,7 +47,7 @@ def discover_clients(**kwargs):
         or p.haslayer(Dot11ReassoReq))
 
     sc.sniff(iface=kwargs.get("interface"), prn=sniff_client, 
-        timeout=None, lfilter=packet_filter)
+        timeout=kwargs.get("timeout"), lfilter=packet_filter)
 
     print "{: <18} {: <18} {: <25}".format("CLIENT", "BSSID", "ESSID")
     for k, v in sniff_data.items():
