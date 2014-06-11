@@ -42,9 +42,9 @@ def discover_clients(**kwargs):
     """
     Only clients should send Dot11ProbeReq, Dot11AssoReq, and Dot11ReassoReq
     """
-    packet_filter = lambda p: (p.haslayer(Dot11ProbeReq) 
-        or p.haslayer(Dot11AssoReq)
-        or p.haslayer(Dot11ReassoReq))
+    packet_filter = lambda p: (p.haslayer(sc.Dot11ProbeReq)
+        or p.haslayer(sc.Dot11AssoReq)
+        or p.haslayer(sc.Dot11ReassoReq))
 
     sc.sniff(iface=kwargs.get("interface"), prn=sniff_client, 
         timeout=kwargs.get("timeout"), lfilter=packet_filter)
@@ -54,15 +54,15 @@ def discover_clients(**kwargs):
         print("{client: <18} {bssid: <18} {essid: <25}".format(**v))
 
 def sniff_ap(p):
-    if p[Dot11].addr3 not in sniff_data.keys():
+    if p[sc.Dot11].addr3 not in sniff_data.keys():
         beacon = "{Dot11Beacon:%Dot11Beacon.cap%}"
         prob_resp = "{Dot11ProbeResp:%Dot11ProbeResp.cap%}"
         capability = p.sprintf(beacon + prob_resp)
 
-        sniff_data[p[Dot11].addr3] = {
-            "bssid": p[Dot11].addr3,
-            "essid": p[Dot11Elt].info if p[Dot11Elt].info else "<hidden>",
-            "channel": int(ord(p[Dot11Elt:3].info)),
+        sniff_data[p[sc.Dot11].addr3] = {
+            "bssid": p[sc.Dot11].addr3,
+            "essid": p[sc.Dot11Elt].info if p[sc.Dot11Elt].info else "<hidden>",
+            "channel": int(ord(p[sc.Dot11Elt:3].info)),
             "encrypted": "privacy" in capability
         }
 
@@ -70,8 +70,8 @@ def discover_aps(**kwargs):
     """
     Only APs should send Dot11Beacon or Dot11ProbeResp
     """
-    packet_filter = lambda p: (p.haslayer(Dot11Beacon)
-        or p.haslayer(Dot11ProbeResp))
+    packet_filter = lambda p: (p.haslayer(sc.Dot11Beacon)
+        or p.haslayer(sc.Dot11ProbeResp))
 
     for channel in kwargs.get("channels", []):
         os.system("iw dev %s set channel %d" % (kwargs.get("interface"), 
